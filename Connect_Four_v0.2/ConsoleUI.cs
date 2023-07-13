@@ -15,12 +15,22 @@ namespace Connect_Four_v0._2
 
     public static class Constants
     {
+        public static readonly string RED = "\u001b[31m";
+        public static readonly string YELLOW = "\u001b[33m";
+        public static readonly string COLOUR_RESET = "\u001b[0m";
         public static readonly string ROWLINE = "|-----|-----|-----|-----|-----|-----|-----|";
-        public static readonly string PLAYER1_TOP_AND_BOTTOM = "|\u001b[33m *** \u001b[0m";
-        public static readonly string PLAYER1_MIDDLE = "|\u001b[33m*   *\u001b[0m";
-        public static readonly string PLAYER2_TOP_AND_BOTTOM = "|\u001b[31m *** \u001b[0m";
-        public static readonly string PLAYER2_MIDDLE = "|\u001b[31m*   *\u001b[0m";
+        public static readonly string PLAYER1_TOP_AND_BOTTOM = $"|{YELLOW} *** {COLOUR_RESET}";
+        public static readonly string PLAYER1_MIDDLE = $"|{YELLOW}*   *{COLOUR_RESET}";
+        public static readonly string PLAYER2_TOP_AND_BOTTOM = $"|{RED} *** {COLOUR_RESET}";
+        public static readonly string PLAYER2_MIDDLE = $"|{RED}*   *{COLOUR_RESET}";
         public static readonly string EMPTY = "|     ";
+        public static readonly string TOKEN_INPUT_INVALID = $"{RED}Nummer is niet tussen de 1 en de 7.{COLOUR_RESET}\n";
+        public static readonly string NOT_A_NUMBER_INVALID = $"{RED}Voer enkel en alleen een nummer in tussen de 1 en de 7.{COLOUR_RESET}\n";
+        public static readonly string COLUMN_IS_FULL = $"{RED}Kolom is vol, voer een kolom in die nog niet vol zit.{COLOUR_RESET}\n";
+        public static readonly string ASK_INTEGER_INPUT = "\nVoer een nummer in tussen de 1 en de 7.";
+        public static readonly string ASK_FOR_REPLAY = "\nDo you want to replay the game? (y/n)";
+        public static readonly string REPLAY_CHARACTER_INVALID = $"{RED}Invalid input. Please press either 'y' or 'n'.{COLOUR_RESET}";
+        public static readonly string ANNOUNCE_DRAW = "Truly equally skilled, this round knew no winner!";
     }
 
     public class ConsoleUI : IUI
@@ -93,18 +103,18 @@ namespace Connect_Four_v0._2
         {
             if (userInput < 1 || userInput > 7)
             {
-                throw new ArgumentException("\u001b[31mNummer is niet tussen de 1 en de 7.\u001b[0m\n");
+                throw new ArgumentException(Constants.TOKEN_INPUT_INVALID);
             }
         } 
 
         private static int ReadUserInput()
         {
-            Console.WriteLine("\nVoer een nummer in tussen de 1 en de 7.");
+            Console.WriteLine(Constants.ASK_INTEGER_INPUT);
             if (int.TryParse(Console.ReadLine(), out int userInput))
             {
                 return userInput;
             }
-            throw new ArgumentException("\u001b[31mVoer enkel en alleen een nummer in tussen de 1 en de 7.\u001b[0m\n");
+            throw new ArgumentException(Constants.NOT_A_NUMBER_INVALID);
         }
 
         public int UserInput()
@@ -127,13 +137,13 @@ namespace Connect_Four_v0._2
             Console.Clear();
         }
 
-        public void HandleInvalidMove()
+        public void HandleFullColumn()
         {
             Console.Clear();
-            Console.WriteLine("\u001b[31mKolom is vol, voer een kolom in die nog niet vol zit.\u001b[0m\n");
+            Console.WriteLine(Constants.COLUMN_IS_FULL);
         }
 
-        private char GetValidReplayInput()
+        private char GetValidRematchInput()
         {
             while (true)
             {
@@ -144,20 +154,42 @@ namespace Connect_Four_v0._2
                 {
                     return userInput;
                 }
+                Console.Clear();
+                Console.WriteLine(Constants.REPLAY_CHARACTER_INVALID);
             }
         }
 
-        public void AnnounceWinner(IGame gameManager)
+        private static string AnnounceWinner(int playerTurn)
         {
-            Console.WriteLine($"Congratulations player {gameManager.PlayerTurn} on winning this round!");
+            string message = $"Congratulations player {playerTurn} on winning this round!";
+            return message;
+    }
+
+        private static bool DetermineWinner(IGame gameManager)
+        {
+            return (gameManager.MaxPossibleMoves == 0 ? false : true);
         }
 
-        public void AskForReplay(ref bool replay)
+        public void AnnounceResult(IGame gameManager)
+        {
+            bool hasSomeoneWon = DetermineWinner(gameManager);
+
+            if (hasSomeoneWon)
+            {
+                Console.WriteLine(AnnounceWinner(gameManager.PlayerTurn));
+            }
+            else
+            {
+                Console.WriteLine(Constants.ANNOUNCE_DRAW);
+            }
+        }
+
+        public void Rematch(ref bool replay)
         {
             while (true)
             {
-                Console.WriteLine("\nDo you want to replay the game? (y/n)");
-                char userInput = GetValidReplayInput();
+                Console.WriteLine(Constants.ASK_FOR_REPLAY);
+                char userInput = GetValidRematchInput();
 
                 if (userInput == 'y')
                 {
@@ -168,21 +200,18 @@ namespace Connect_Four_v0._2
                     replay = false;
                     return ;
                 }
-
-                Console.Clear();
-                Console.WriteLine("\n\u001b[31mInvalid input. Please press either 'y' or 'n'.\u001b[0m");
             }
         }
 
         public void IntroductionMessage()
         {
             Console.WriteLine("Welcome to");
-            Console.WriteLine(@"[33m  ______ [31m  ______  [33m .__   __.[31m .__   __.[33m  _______ [31m  ______ [33m.___________.[31m    _  _    [0m");
-            Console.WriteLine(@"[33m /      |[31m /  __  \ [33m |  \ |  |[31m |  \ |  |[33m |   ____|[31m /      |[33m|           |[31m   | || |   [0m");
-            Console.WriteLine(@"[33m|  ,----'[31m|  |  |  |[33m |   \|  |[31m |   \|  |[33m |  |__   [31m|  ,----'[33m`---|  |----`[31m   | || |_  [0m");
-            Console.WriteLine(@"[33m|  |     [31m|  |  |  |[33m |  . `  |[31m |  . `  |[33m |   __|  [31m|  |     [33m    |  |     [31m   |__   _| [0m");
-            Console.WriteLine(@"[33m|  `----.[31m|  `--'  |[33m |  |\   |[31m |  |\   |[33m |  |____ [31m|  `----.[33m    |  |     [31m      | |   [0m");
-            Console.WriteLine(@"[33m \______|[31m \______/ [33m |__| \__|[31m |__| \__|[33m |_______|[31m \______|[33m    |__|     [31m      |_|   [0m");
+            Console.WriteLine(@$"{Constants.YELLOW}  ______ {Constants.RED}  ______  {Constants.YELLOW} .__   __.{Constants.RED} .__   __.{Constants.YELLOW}  _______ {Constants.RED}  ______ {Constants.YELLOW}.___________.{Constants.RED}    _  _    {Constants.COLOUR_RESET}");
+            Console.WriteLine(@$"{Constants.YELLOW} /      |{Constants.RED} /  __  \ {Constants.YELLOW} |  \ |  |{Constants.RED} |  \ |  |{Constants.YELLOW} |   ____|{Constants.RED} /      |{Constants.YELLOW}|           |{Constants.RED}   | || |   {Constants.COLOUR_RESET}");
+            Console.WriteLine(@$"{Constants.YELLOW}|  ,----'{Constants.RED}|  |  |  |{Constants.YELLOW} |   \|  |{Constants.RED} |   \|  |{Constants.YELLOW} |  |__   {Constants.RED}|  ,----'{Constants.YELLOW}`---|  |----`{Constants.RED}   | || |_  {Constants.COLOUR_RESET}");
+            Console.WriteLine(@$"{Constants.YELLOW}|  |     {Constants.RED}|  |  |  |{Constants.YELLOW} |  . `  |{Constants.RED} |  . `  |{Constants.YELLOW} |   __|  {Constants.RED}|  |     {Constants.YELLOW}    |  |     {Constants.RED}   |__   _| {Constants.COLOUR_RESET}");
+            Console.WriteLine(@$"{Constants.YELLOW}|  `----.{Constants.RED}|  `--'  |{Constants.YELLOW} |  |\   |{Constants.RED} |  |\   |{Constants.YELLOW} |  |____ {Constants.RED}|  `----.{Constants.YELLOW}    |  |     {Constants.RED}      | |   {Constants.COLOUR_RESET}");
+            Console.WriteLine(@$"{Constants.YELLOW} \______|{Constants.RED} \______/ {Constants.YELLOW} |__| \__|{Constants.RED} |__| \__|{Constants.YELLOW} |_______|{Constants.RED} \______|{Constants.YELLOW}    |__|     {Constants.RED}      |_|   {Constants.COLOUR_RESET}");
             Console.WriteLine("\nPress any key to begin");
             Console.ReadKey();
             Console.Clear();
@@ -194,6 +223,7 @@ namespace Connect_Four_v0._2
             Console.WriteLine("1. Choose who plays first. Player 1 will be yellow and Player 2 will be red.");
             Console.WriteLine("2. Players will alternate taking turns in putting their tokens in the board. You will put your token in the board by typing in the number at the top of the column you wish to put it in.");
             Console.WriteLine("3. The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical or diagonal.");
+
             Console.WriteLine("\nPress a Key to begin.");
             Console.ReadKey();
         }

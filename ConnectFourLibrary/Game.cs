@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +17,12 @@ namespace ConnectFourLibrary
             this._playerTwo = playerTwo;
             this.PlayerTurn = 1;
             this.InitialiseBoard();
+            this.CalculateMaxPossibleMoves();
+        }
+
+        private void CalculateMaxPossibleMoves()
+        {
+            this.MaxPossibleMoves = this._board.PlayingBoard.GetLength(0) * this._board.PlayingBoard.GetLength(1);
         }
 
         public void InitialiseBoard()
@@ -153,6 +160,7 @@ namespace ConnectFourLibrary
         }
 
         public int PlayerTurn { get; set; }
+        public int MaxPossibleMoves { get; set; }
         public IBoard Board
         {
             get { return this._board; }

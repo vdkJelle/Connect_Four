@@ -7,6 +7,7 @@
         void SwapPlayerTurns();
         bool CheckConnectedFour();
         int PlayerTurn { get; set; }
+        int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }
     }
 }

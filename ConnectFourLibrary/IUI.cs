@@ -11,9 +11,9 @@ namespace ConnectFourLibrary
         void DrawBoard(IBoard board);
         int UserInput();
         void ClearConsole();
-        void HandleInvalidMove();
-        void AnnounceWinner(IGame gameManager);
-        void AskForReplay(ref bool replay);
+        void HandleFullColumn();
+        void AnnounceResult(IGame gameManager);
+        void Rematch(ref bool replay);
         void IntroductionMessage();
         void Rules();
     }

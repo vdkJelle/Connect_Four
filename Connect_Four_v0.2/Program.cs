@@ -14,24 +14,28 @@ namespace App
             IGame gameManager = new Game(connectFourBoard, playerOne, playerTwo);
             int userInput;
 
-            while (true)
+            for (; gameManager.MaxPossibleMoves > 0; gameManager.MaxPossibleMoves--)
             {
                 consoleUI.DrawBoard(gameManager.Board);
                 if ((userInput = consoleUI.UserInput()) == -1)
+                {
                     continue;
+                }
                 if (gameManager.RegisterMoveToBoard(userInput - 1) == -1)
                 {
-                    consoleUI.HandleInvalidMove();
+                    consoleUI.HandleFullColumn();
                     continue;
                 }
                 if (gameManager.CheckConnectedFour())
+                {
                     break;
+                }
                 gameManager.SwapPlayerTurns();
                 consoleUI.ClearConsole();
             }
             consoleUI.ClearConsole();
             consoleUI.DrawBoard(gameManager.Board);
-            consoleUI.AnnounceWinner(gameManager);
+            consoleUI.AnnounceResult(gameManager);
         }
 
         static public int Main()
@@ -47,20 +51,20 @@ namespace App
                 while (replay)
                 {
                     MainGameLoop(consoleUI);
-                    consoleUI.AskForReplay(ref replay);
+                    consoleUI.Rematch(ref replay);
                 }
             }
             catch (ArgumentException error)
             {
                 Console.WriteLine(error.Message);
-                return (1);
+                return 1;
             }
             catch (Exception error)
             {
                 Console.WriteLine(error.Message);
-                return (1);
+                return 1;
             }
-            return (0);
+            return 0;
         }
     }
 }
