@@ -13,17 +13,11 @@ namespace ConnectFourLibrary
             this._playerId = playerId;
         }
 
-        public bool HasActiveTurn
-        {
-            get { return (_hasActiveTurn); }
-            set { _hasActiveTurn = value; }
-        }
         public int PlayerId 
         { 
             get { return (_playerId); }
         }
 
-        private bool _hasActiveTurn;
         private int _playerId;
     }
 }

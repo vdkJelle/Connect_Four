@@ -8,7 +8,6 @@ namespace ConnectFourLibrary
 {
     public interface IPlayer
     {
-        bool HasActiveTurn { get; set; }
         int PlayerId { get; }
     }
 }

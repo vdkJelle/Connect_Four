@@ -1,4 +1,6 @@
-﻿namespace ConnectFourWeb
+﻿using ConnectFourWeb.Hubs;
+
+namespace ConnectFourWeb
 {
     public class Startup
     {
@@ -13,6 +15,7 @@
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -34,6 +37,7 @@
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<SignalRHub>("/SignalRHub");
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_HOST");
             });

@@ -11,9 +11,9 @@ namespace Connect_Four_v0._2
     {
         public Board(int height, int width)
         {
-            this.PlayingBoard = new int[height, width];
+            this.PlayingBoard = new GameToken[height, width];
         }
 
-        public int[,] PlayingBoard { get; }
+        public GameToken[,] PlayingBoard { get; }
     }
 }

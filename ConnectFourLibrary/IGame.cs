@@ -2,7 +2,6 @@
 {
     public interface IGame
     {
-        void InitialiseBoard();
         int RegisterMoveToBoard(int move);
         void SwapPlayerTurns();
         /// <summary>

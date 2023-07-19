@@ -9,6 +9,8 @@
 @inject NavigationManager NavigationManager
 
 @code {
+    private HubConnection hubConnection;
+
     private string GenerateString()
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
