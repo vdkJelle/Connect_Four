@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConnectFourLibrary
 {
-    public interface IBoard
+    internal interface IGameToken
     {
-        public GameToken[,] PlayingBoard { get; }
     }
 }

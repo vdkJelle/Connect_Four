@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connect_Four_v0.2", "Connec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Connect_Four_v0.2Tests", "Connect_Four_v0.2Tests\Connect_Four_v0.2Tests.csproj", "{0DF716CC-F57E-4E59-BF01-3612684F7EF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectFourLibrary", "ConnectFourLibrary\ConnectFourLibrary.csproj", "{BCD41E20-5ED1-446D-9E17-986CD81BA554}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFourLibrary", "ConnectFourLibrary\ConnectFourLibrary.csproj", "{BCD41E20-5ED1-446D-9E17-986CD81BA554}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectFourWeb", "ConnectFourWeb\ConnectFourWeb.csproj", "{C5A707A9-3FBC-4810-8FF1-D6E7F5D01E7B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCD41E20-5ED1-446D-9E17-986CD81BA554} = {BCD41E20-5ED1-446D-9E17-986CD81BA554}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +32,10 @@ Global
 		{BCD41E20-5ED1-446D-9E17-986CD81BA554}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCD41E20-5ED1-446D-9E17-986CD81BA554}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCD41E20-5ED1-446D-9E17-986CD81BA554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5A707A9-3FBC-4810-8FF1-D6E7F5D01E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5A707A9-3FBC-4810-8FF1-D6E7F5D01E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5A707A9-3FBC-4810-8FF1-D6E7F5D01E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5A707A9-3FBC-4810-8FF1-D6E7F5D01E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

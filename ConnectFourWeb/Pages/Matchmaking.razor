@@ -1,0 +1,31 @@
+﻿@page "/matchmaking"
+
+<PageTitle>Matchmaking</PageTitle>
+
+<h1>Matchmaking</h1>
+
+<button class="btn btn-primary" @onclick="() => NavigateToGamePage()">Start Game!</button>
+
+@inject NavigationManager NavigationManager
+
+@code {
+    private string GenerateString()
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        Random randomStringGenerator = new Random();
+
+        int length = 8;
+
+        string randomString = new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[randomStringGenerator.Next(s.Length)]).ToArray());
+
+        return randomString;
+    }
+
+    private void NavigateToGamePage()
+    {
+        string gameId = this.GenerateString();
+        string url = $"/game/{gameId}";
+        NavigationManager.NavigateTo(url);
+    }
+}
