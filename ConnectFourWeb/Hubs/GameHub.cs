@@ -2,7 +2,7 @@
 
 namespace ConnectFourWeb.Hubs
 {
-    public class SignalRHub: Hub
+    public class GameHub: Hub
     {
         private readonly static Dictionary<string, string> connectionIds = new();
 
@@ -14,14 +14,10 @@ namespace ConnectFourWeb.Hubs
 
             connectionIds[userId] = Context.ConnectionId;
 
-            await Clients.Caller.SendAsync("User Connected", userId);
-
-            await Clients.All.SendAsync("NewUserConnected", username, userId);
-
             await base.OnConnectedAsync();
         }
 
-        private async void NotifyOtherClients(string key) => await Clients.All.SendAsync("UserDisconnected", key);
+        private async void NotifyOtherClients(string key) => await Clients.All.SendAsync("UserDisconnceted", key);
 
         private static void RemoveUserFromDictionary(KeyValuePair<string, string> user) => connectionIds.Remove(user.Key);
 

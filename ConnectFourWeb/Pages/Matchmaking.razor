@@ -1,33 +1,59 @@
 ﻿@page "/matchmaking"
 
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
 <PageTitle>Matchmaking</PageTitle>
 
 <h1>Matchmaking</h1>
 
-<button class="btn btn-primary" @onclick="() => NavigateToGamePage()">Start Game!</button>
+<div class="form-group">
+    <label>
+        Username:
+        <input @bind="username" maxlength="8" minlength="2" />
+    </label>
+</div>
 
-@inject NavigationManager NavigationManager
+<button class="btn btn-primary" @onclick="() => InitiateMatchmaking()" disabled="@(!IsConnected)">Search for Game!</button>
+
 
 @code {
-    private HubConnection hubConnection;
+    private HubConnection? hubConnection;
+    private string? username;
 
-    private string GenerateString()
+    protected override async Task OnInitializedAsync()
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        Random randomStringGenerator = new Random();
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("SignalRHub"))
+            .WithAutomaticReconnect()
+            .Build();
 
-        int length = 8;
+        hubConnection.On<string>("InitiateMatch", (url) => NavigateToGamePage(url));
 
-        string randomString = new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[randomStringGenerator.Next(s.Length)]).ToArray());
-
-        return randomString;
+        await hubConnection.StartAsync();
     }
 
-    private void NavigateToGamePage()
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
     {
-        string gameId = this.GenerateString();
-        string url = $"/game/{gameId}";
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    private void NavigateToGamePage(string url)
+    {
         NavigationManager.NavigateTo(url);
+    }
+
+    private async void InitiateMatchmaking()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("InitiateMatchmaking", username);
+        }
     }
 }

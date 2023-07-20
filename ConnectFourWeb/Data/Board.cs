@@ -1,4 +1,5 @@
 using ConnectFourLibrary;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace ConnectFourWeb.Data
 {

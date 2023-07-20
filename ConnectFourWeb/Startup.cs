@@ -1,4 +1,5 @@
 ﻿using ConnectFourWeb.Hubs;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace ConnectFourWeb
 {
@@ -16,6 +17,11 @@ namespace ConnectFourWeb
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -32,12 +38,13 @@ namespace ConnectFourWeb
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseResponseCompression();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<SignalRHub>("/SignalRHub");
+                endpoints.MapHub<MatchmakingHub>("/SignalRHub");
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_HOST");
             });
