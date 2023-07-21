@@ -1,5 +1,11 @@
 ﻿@page "/game/{id}"
 
+@using ConnectFourLibrary
+@using ConnectFourWeb.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
 <PageTitle>Game Page</PageTitle>
 
 <h1>Connect Four</h1>
@@ -11,8 +17,46 @@
     <li>The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical, or diagonal.</li>
 </ol>
 
+<div class="board">
+    @for (int i = 0; i < 6; i++)
+    {
+        <div class="column">
+            @for (int j = 0; j < 7; j++)
+            {
+                <div class="gamepiece.@gameManager.Board[i, j].Color.ToString().ToLower()" @onclick="@(() => PieceClicked(i, j))"></div>
+            }
+            </div>
+        }
+</div>
 
 @code {
     [Parameter]
     public string? Id { get; set; }
+
+    [Parameter]
+    public string? OtherUserId { get; set; }
+
+    private HubConnection? hubConnection;
+    private static IBoard board = new Board(6, 7);
+    private static IPlayer playerOne = new Player("Yes");
+    private static IPlayer playerTwo = new Player("No");
+    private IGame gameManager = new Game(board, playerOne, playerTwo);
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("GameHub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        await hubConnection.StartAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
 }

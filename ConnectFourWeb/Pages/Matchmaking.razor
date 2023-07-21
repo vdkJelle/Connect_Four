@@ -8,24 +8,16 @@
 
 <h1>Matchmaking</h1>
 
-<div class="form-group">
-    <label>
-        Username:
-        <input @bind="username" maxlength="8" minlength="2" />
-    </label>
-</div>
-
 <button class="btn btn-primary" @onclick="() => InitiateMatchmaking()" disabled="@(!IsConnected)">Search for Game!</button>
 
 
 @code {
     private HubConnection? hubConnection;
-    private string? username;
 
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("SignalRHub"))
+            .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"))
             .WithAutomaticReconnect()
             .Build();
 
@@ -53,7 +45,7 @@
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("InitiateMatchmaking", username);
+            await hubConnection.SendAsync("InitiateMatchmaking");
         }
     }
 }

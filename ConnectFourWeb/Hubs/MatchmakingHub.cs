@@ -5,32 +5,21 @@ namespace ConnectFourWeb.Hubs
     public class MatchmakingHub: Hub
     {
         private readonly static Dictionary<string, string> connectionIds = new();
-        private static string otherUser;
+        private static string? otherUser;
 
         public override async Task OnConnectedAsync()
         {
-            string username = Context.User.Identity.Name;
-
-            if (string.IsNullOrEmpty(username))
-            {
-                username = "Guest" + DateTime.Now.Ticks;
-            }
-
             string userId = Guid.NewGuid().ToString();
 
             connectionIds[userId] = Context.ConnectionId;
 
-            await Clients.Caller.SendAsync("User Connected", userId);
-
-            await Clients.All.SendAsync("NewUserConnected", username, userId);
-
             await base.OnConnectedAsync();
         }
 
-        private string GenerateString()
+        private static string GenerateString()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            Random randomStringGenerator = new Random();
+            Random randomStringGenerator = new();
 
             int length = 8;
 
@@ -40,7 +29,7 @@ namespace ConnectFourWeb.Hubs
             return randomString;
         }
 
-        public async Task InitiateMatchmaking(string username)
+        public async Task InitiateMatchmaking()
         {
             if (string.IsNullOrEmpty(otherUser))
             {
@@ -48,7 +37,7 @@ namespace ConnectFourWeb.Hubs
                 return;
             }
 
-            string gameId = this.GenerateString();
+            string gameId = GenerateString();
             string url = $"/game/{gameId}";
             await Clients.Clients(Context.ConnectionId, otherUser).SendAsync("InitiateMatch", url);
         }

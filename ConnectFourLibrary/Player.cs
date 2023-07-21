@@ -8,16 +8,16 @@ namespace ConnectFourLibrary
 {
     public class Player : IPlayer
     {
-        public Player(int playerId)
+        public Player(string playerId)
         {
             this._playerId = playerId;
         }
 
-        public int PlayerId 
+        public string PlayerId 
         { 
             get { return (_playerId); }
         }
 
-        private int _playerId;
+        private string _playerId;
     }
 }

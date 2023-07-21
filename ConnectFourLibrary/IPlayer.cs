@@ -8,6 +8,6 @@ namespace ConnectFourLibrary
 {
     public interface IPlayer
     {
-        int PlayerId { get; }
+        string PlayerId { get; }
     }
 }
