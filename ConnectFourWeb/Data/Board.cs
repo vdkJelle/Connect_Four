@@ -7,14 +7,18 @@ namespace ConnectFourWeb.Data
     {
         public Board(int height, int width)
         {
-            this.PlayingBoard = new GameToken[height, width]; 
+            this.PlayingBoard = new GameToken[height, width];
+            InitialiseBoard();
         }
 
         public void InitialiseBoard()
         {
             for (int i = 0; i < PlayingBoard.GetLength(0); i++)
             {
-                Array.Clear(PlayingBoard, 0, PlayingBoard.GetLength(1));
+                for (int j = 0; j < PlayingBoard.GetLength(1); j++)
+                {
+                    PlayingBoard[i, j] = new GameToken(TokenColour.Blank);
+                }
             }
         }
 

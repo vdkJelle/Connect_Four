@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using ConnectFourWeb.Data;
 
 namespace ConnectFourWeb.Hubs
 {
@@ -38,6 +39,7 @@ namespace ConnectFourWeb.Hubs
             }
 
             string gameId = GenerateString();
+            GameService.InitialiseGameData(gameId, otherUser, Context.ConnectionId);
             string url = $"/game/{gameId}";
             await Clients.Clients(Context.ConnectionId, otherUser).SendAsync("InitiateMatch", url);
         }

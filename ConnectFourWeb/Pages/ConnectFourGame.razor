@@ -10,37 +10,43 @@
 
 <h1>Connect Four</h1>
 
-<h3>How to Play:</h3>
+<h2>How to Play:</h2>
 <ol>
     <li>Player 1 will be <span style="color: red">red</span>, and Player 2 will be <span style="color: yellow;">yellow</span>.</li>
     <li>Players will alternate taking turns by putting their tokens on the board. Put your token in the board by clicking the column where you want to place it.</li>
     <li>The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical, or diagonal.</li>
 </ol>
 
-<div class="board">
-    @for (int i = 0; i < 6; i++)
-    {
-        <div class="column">
-            @for (int j = 0; j < 7; j++)
-            {
-                <div class="gamepiece.@gameManager.Board[i, j].Color.ToString().ToLower()" @onclick="@(() => PieceClicked(i, j))"></div>
-            }
+<h3>@gameManager.PlayerTurn's Turn!</h3>
+
+@if (gameManager != null)
+{
+    <div class="column">
+        @for (int i = 0; i < 6; i++)
+        {
+            <div class="board">
+                @for (int j = 0; j < 7; j++)
+                {
+                    int columnIndex = j;
+
+                    <div class="gamepiece
+                        @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                }
             </div>
         }
-</div>
+    </div>
+}
+else
+{
+    <p>Loading...</p>
+}
 
 @code {
     [Parameter]
     public string? Id { get; set; }
 
-    [Parameter]
-    public string? OtherUserId { get; set; }
-
     private HubConnection? hubConnection;
-    private static IBoard board = new Board(6, 7);
-    private static IPlayer playerOne = new Player("Yes");
-    private static IPlayer playerTwo = new Player("No");
-    private IGame gameManager = new Game(board, playerOne, playerTwo);
+    private IGame gameManager;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,6 +54,8 @@
             .WithUrl(NavigationManager.ToAbsoluteUri("GameHub"))
             .WithAutomaticReconnect()
             .Build();
+
+        gameManager = GameService.GetGameManagerById(Id);
 
         await hubConnection.StartAsync();
     }
@@ -58,5 +66,11 @@
         {
             await hubConnection.DisposeAsync();
         }
+    }
+
+    private void PieceClicked(int col)
+    {
+        gameManager.RegisterMoveToBoard(col);
+        gameManager.SwapPlayerTurns();
     }
 }
