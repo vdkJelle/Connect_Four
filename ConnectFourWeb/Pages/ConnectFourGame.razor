@@ -48,9 +48,29 @@
                  }
             </div>
         }
+        else if (illegalMove == true)
+        {
+            illegalMove = false;
+            if (@gameManager.PlayerTurn == gameManager.PlayerOne)
+            <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+            <h3><span style="color: purple">Illegal move, please select a column that isn't full!</span></h3>
+            <div class="column">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="board">
+                        @for (int j = 0; j < 7; j++)
+                        {
+                            int columnIndex = j;
+
+                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                        }
+                    </div>
+                }
+            </div>
+        }
         else
         {
-            <h3>@gameManager.PlayerTurn's Turn!</h3>
+            <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
             <div class="column">
                 @for (int i = 0; i < 6; i++)
                 {
@@ -79,6 +99,7 @@
     private HubConnection? hubConnection;
     private IGame gameManager;
     private bool gameEnded = false;
+    private bool illegalMove = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,7 +110,21 @@
 
         gameManager = GameService.GetGameManagerById(Id);
 
+        hubConnection.On<string>("SetPlayerOne", (socketId) =>
+        {
+            gameManager.PlayerOne.PlayerId = socketId;
+            gameManager.PlayerOne.PlayerColour = TokenColour.Red;
+        });
+        hubConnection.On<string>("SetPlayerTwo", (socketId) =>
+        {
+            gameManager.PlayerTwo.PlayerId = socketId;
+            gameManager.PlayerTwo.PlayerColour = TokenColour.Yellow;
+        });
+
         await hubConnection.StartAsync();
+
+        await hubConnection.InvokeAsync("AddUserToGroup", Id);
+        await hubConnection.InvokeAsync("SetPlayers", Id);
     }
 
     public async ValueTask DisposeAsync()
@@ -102,7 +137,11 @@
 
     private void PieceClicked(int col)
     {
-        gameManager.RegisterMoveToBoard(col);
+        if (gameManager.RegisterMoveToBoard(col) == -1)
+        {
+            illegalMove = true;
+            return;
+        }
         if (gameManager.CheckForWinner())
         {
             gameEnded = true;

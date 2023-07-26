@@ -9,8 +9,10 @@
         /// </summary>
         /// <returns>If true then game finisahed, otherwise the game continues</returns>
         bool CheckForWinner();
-        TokenColour PlayerTurn { get; set; }
+        IPlayer PlayerTurn { get; set; }
         int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }
+        public IPlayer PlayerOne { get; set; }
+        public IPlayer PlayerTwo { get; set; }
     }
 }

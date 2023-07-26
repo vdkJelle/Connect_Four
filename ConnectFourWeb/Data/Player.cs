@@ -11,14 +11,10 @@ namespace ConnectFourWeb.Data
     {
         public Player(string playerId)
         {
-            this._playerId = playerId;
+            PlayerId = playerId;
         }
 
-        public string PlayerId 
-        { 
-            get { return (_playerId); }
-        }
-
-        private string _playerId;
+        public string PlayerId { get; set; }
+        public TokenColour PlayerColour { get; set; }
     }
 }

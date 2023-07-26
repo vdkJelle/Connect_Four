@@ -8,6 +8,7 @@ namespace ConnectFourLibrary
 {
     public interface IPlayer
     {
-        string PlayerId { get; }
+        string PlayerId { get; set; }
+        TokenColour PlayerColour { get; set; }
     }
 }

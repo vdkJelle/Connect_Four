@@ -15,7 +15,7 @@ namespace ConnectFourLibrary
             this.Board = playingBoard;
             this.PlayerOne = playerOne;
             this.PlayerTwo = playerTwo;
-            this.PlayerTurn = TokenColour.Red;
+            this.PlayerTurn = PlayerOne;
             this.CalculateMaxPossibleMoves();
         } 
 
@@ -41,7 +41,7 @@ namespace ConnectFourLibrary
             try
             {
                 int row = FindAvailableRow(move);
-                this.Board.PlayingBoard[row, move].color = this.PlayerTurn;
+                this.Board.PlayingBoard[row, move].color = this.PlayerTurn.PlayerColour;
                 this.MaxPossibleMoves--;
                 return 0;
             }
@@ -53,13 +53,13 @@ namespace ConnectFourLibrary
 
         public void SwapPlayerTurns()
         {
-            if (this.PlayerTurn == TokenColour.Red)
+            if (this.PlayerTurn == PlayerOne)
             {
-                this.PlayerTurn = TokenColour.Yellow;
+                this.PlayerTurn = PlayerTwo;
             }
             else
             {
-                this.PlayerTurn = TokenColour.Red;
+                this.PlayerTurn = PlayerOne;
             }
         }
 
@@ -71,10 +71,10 @@ namespace ConnectFourLibrary
             {
                 for (int col = 0; col < columns - 3; col++)
                 {
-                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 1, col + 1].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 2, col + 2].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 3, col + 3].color == this.PlayerTurn)
+                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 1, col + 1].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 2, col + 2].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 3, col + 3].color == this.PlayerTurn.PlayerColour)
                     {
                         return true;
                     }
@@ -85,10 +85,10 @@ namespace ConnectFourLibrary
             {
                 for (int col = columns - 1; col >= 3; col--)
                 {
-                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 1, col - 1].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 2, col - 2].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 3, col - 3].color == this.PlayerTurn)
+                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 1, col - 1].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 2, col - 2].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 3, col - 3].color == this.PlayerTurn.PlayerColour)
                     {
                         return true;
                     }
@@ -104,10 +104,10 @@ namespace ConnectFourLibrary
             {
                 for (int row = 0; row < rows - 3; row++)
                 {
-                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 1, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 2, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row + 3, col].color == this.PlayerTurn)
+                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 1, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 2, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row + 3, col].color == this.PlayerTurn.PlayerColour)
                     {
                         return true;
                     }
@@ -122,10 +122,10 @@ namespace ConnectFourLibrary
             {
                 for (int col = 0; col < columns - 3; col++)
                 {
-                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row, col + 1].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row, col + 2].color == this.PlayerTurn &&
-                        this.Board.PlayingBoard[row, col + 3].color == this.PlayerTurn)
+                    if (this.Board.PlayingBoard[row, col].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row, col + 1].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row, col + 2].color == this.PlayerTurn.PlayerColour &&
+                        this.Board.PlayingBoard[row, col + 3].color == this.PlayerTurn.PlayerColour)
                     {
                         return true;
                     }
@@ -151,10 +151,10 @@ namespace ConnectFourLibrary
             return (false);
         }
 
-        public TokenColour PlayerTurn { get; set; }
+        public IPlayer PlayerTurn { get; set; }
         public int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }
-        private IPlayer PlayerOne { get; }
-        private IPlayer PlayerTwo { get; }
+        public IPlayer PlayerOne { get; set; }
+        public IPlayer PlayerTwo { get; set; }
     }
 }
