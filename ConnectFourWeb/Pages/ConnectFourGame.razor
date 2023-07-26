@@ -17,28 +17,59 @@
     <li>The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical, or diagonal.</li>
 </ol>
 
-<h3>@gameManager.PlayerTurn's Turn!</h3>
-
-@if (gameManager != null)
-{
-    <div class="column">
-        @for (int i = 0; i < 6; i++)
+@{
+    if (gameManager != null)
+    {
+        if (gameEnded)
         {
-            <div class="board">
-                @for (int j = 0; j < 7; j++)
-                {
-                    int columnIndex = j;
+            int maxPossibleMoves = gameManager.MaxPossibleMoves;
+            bool isTie = gameManager.MaxPossibleMoves == 0;
 
-                    <div class="gamepiece
-                        @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+            <div>
+                @if (isTie)
+                {
+                    <p>It's a tie!</p>
+                }
+                else
+                {
+                    <h3>@gameManager.PlayerTurn wins!</h3>
+                }
+            </div>
+
+            <div class="column">
+                 @for (int i = 0; i < 6; i++)
+                 {
+                    <div class="board">
+                        @for (int j = 0; j < 7; j++)
+                        {
+                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
+                        }
+                    </div>
+                 }
+            </div>
+        }
+        else
+        {
+            <h3>@gameManager.PlayerTurn's Turn!</h3>
+            <div class="column">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="board">
+                        @for (int j = 0; j < 7; j++)
+                        {
+                            int columnIndex = j;
+
+                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                        }
+                    </div>
                 }
             </div>
         }
-    </div>
-}
-else
-{
-    <p>Loading...</p>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
 }
 
 @code {
@@ -47,6 +78,7 @@ else
 
     private HubConnection? hubConnection;
     private IGame gameManager;
+    private bool gameEnded = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,6 +103,11 @@ else
     private void PieceClicked(int col)
     {
         gameManager.RegisterMoveToBoard(col);
+        if (gameManager.CheckForWinner())
+        {
+            gameEnded = true;
+            return;
+        }
         gameManager.SwapPlayerTurns();
     }
 }

@@ -42,6 +42,7 @@ namespace ConnectFourLibrary
             {
                 int row = FindAvailableRow(move);
                 this.Board.PlayingBoard[row, move].color = this.PlayerTurn;
+                this.MaxPossibleMoves--;
                 return 0;
             }
             catch
@@ -133,7 +134,7 @@ namespace ConnectFourLibrary
             return false;
         }
 
-        public bool CheckConnectedFour()
+        public bool CheckForWinner()
         {
             int rows = this.Board.PlayingBoard.GetLength(0);
             int columns = this.Board.PlayingBoard.GetLength(1);
