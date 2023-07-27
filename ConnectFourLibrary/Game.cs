@@ -151,6 +151,18 @@ namespace ConnectFourLibrary
             return (false);
         }
 
+        public bool CheckForTie()
+        {
+            if (this.MaxPossibleMoves == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public IPlayer PlayerTurn { get; set; }
         public int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }

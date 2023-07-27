@@ -9,8 +9,8 @@ namespace App
         static public void MainGameLoop(IUI consoleUI)
         {
             IBoard connectFourBoard = new Board(6, 7);
-            IPlayer playerOne = new Player(1);
-            IPlayer playerTwo = new Player(2);
+            IPlayer playerOne = new Player("One");
+            IPlayer playerTwo = new Player("Two");
             IGame gameManager = new Game(connectFourBoard, playerOne, playerTwo);
             int userInput;
 
@@ -26,7 +26,7 @@ namespace App
                     consoleUI.HandleFullColumn();
                     continue;
                 }
-                if (gameManager.CheckConnectedFour())
+                if (gameManager.CheckForWinner())
                 {
                     break;
                 }

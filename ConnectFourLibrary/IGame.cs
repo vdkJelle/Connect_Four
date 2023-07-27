@@ -9,6 +9,7 @@
         /// </summary>
         /// <returns>If true then game finisahed, otherwise the game continues</returns>
         bool CheckForWinner();
+        bool CheckForTie();
         IPlayer PlayerTurn { get; set; }
         int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }

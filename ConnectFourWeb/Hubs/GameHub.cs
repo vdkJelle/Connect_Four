@@ -2,6 +2,7 @@
 using ConnectFourWeb.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace ConnectFourWeb.Hubs
 {
@@ -39,6 +40,34 @@ namespace ConnectFourWeb.Hubs
                 connectionCount[gameId] = new[] { Context.ConnectionId };
                 await Clients.Clients(Context.ConnectionId).SendAsync("SetPlayerOne", Context.ConnectionId);
             }
+        }
+
+        public async Task MakeMove(MoveData moveData)
+        {
+            int col = moveData.Col;
+            string gameId = moveData.GameId;
+
+            IGame gameManager = GameService.GetGameManagerById(gameId);
+
+            if (gameManager == null)
+            {
+                return;
+            }
+
+            if (gameManager.RegisterMoveToBoard(col) == -1)
+            {
+                throw new InvalidOperationException();
+            }
+            if (gameManager.CheckForWinner() || gameManager.CheckForTie())
+            {
+                await Clients.Group(gameId).SendAsync("GameEnded");
+                return;
+            }
+            else
+            {
+                await Clients.Group(gameId).SendAsync("ReceiveMove");
+            }
+            gameManager.SwapPlayerTurns();
         }
 
         private async void NotifyOtherClients(string key) => await Clients.All.SendAsync("UserDisconnceted", key);

@@ -1,8 +1,10 @@
-﻿@page "/game/{id}"
+﻿@page "/game/{gameId}"
 
 @using ConnectFourLibrary
 @using ConnectFourWeb.Data
 @using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
@@ -32,7 +34,7 @@
                 }
                 else
                 {
-                    <h3>@gameManager.PlayerTurn wins!</h3>
+                    <h3>@gameManager.PlayerTurn.PlayerColour wins!</h3>
                 }
             </div>
 
@@ -48,12 +50,31 @@
                  }
             </div>
         }
-        else if (illegalMove == true)
+        else if (illegalMove == true && gameManager.PlayerTurn.PlayerId == playerId)
         {
             illegalMove = false;
-            if (@gameManager.PlayerTurn == gameManager.PlayerOne)
-            <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+            if (@gameManager.PlayerTurn.PlayerId == playerId)
+            {
+                <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+            }
             <h3><span style="color: purple">Illegal move, please select a column that isn't full!</span></h3>
+            <div class="column">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="board">
+                        @for (int j = 0; j < 7; j++)
+                        {
+                            int columnIndex = j;
+
+                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else if (gameManager.PlayerTurn.PlayerId == playerId)
+        {
+            <h3>Your Turn! You are playing with @gameManager.PlayerTurn.PlayerColour!</h3>
             <div class="column">
                 @for (int i = 0; i < 6; i++)
                 {
@@ -70,16 +91,14 @@
         }
         else
         {
-            <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+            <h3>It's not your turn, please wait for your turn</h3>
             <div class="column">
                 @for (int i = 0; i < 6; i++)
                 {
                     <div class="board">
                         @for (int j = 0; j < 7; j++)
                         {
-                            int columnIndex = j;
-
-                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
                         }
                     </div>
                 }
@@ -94,12 +113,13 @@
 
 @code {
     [Parameter]
-    public string? Id { get; set; }
+    public string? gameId { get; set; }
 
     private HubConnection? hubConnection;
     private IGame gameManager;
     private bool gameEnded = false;
     private bool illegalMove = false;
+    private string? playerId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,23 +128,33 @@
             .WithAutomaticReconnect()
             .Build();
 
-        gameManager = GameService.GetGameManagerById(Id);
+        gameManager = GameService.GetGameManagerById(gameId);
 
         hubConnection.On<string>("SetPlayerOne", (socketId) =>
         {
             gameManager.PlayerOne.PlayerId = socketId;
             gameManager.PlayerOne.PlayerColour = TokenColour.Red;
+            playerId = gameManager.PlayerOne.PlayerId;
+            gameManager.PlayerTurn = gameManager.PlayerOne;
+            InvokeAsync(StateHasChanged);
         });
         hubConnection.On<string>("SetPlayerTwo", (socketId) =>
         {
             gameManager.PlayerTwo.PlayerId = socketId;
             gameManager.PlayerTwo.PlayerColour = TokenColour.Yellow;
+            playerId = gameManager.PlayerTwo.PlayerId;
+            InvokeAsync(StateHasChanged);
         });
+        hubConnection.On("GameEnded", () => {
+            gameEnded = true;
+            InvokeAsync(StateHasChanged);
+        });
+        hubConnection.On("ReceiveMove", () => InvokeAsync(StateHasChanged));
 
         await hubConnection.StartAsync();
 
-        await hubConnection.InvokeAsync("AddUserToGroup", Id);
-        await hubConnection.InvokeAsync("SetPlayers", Id);
+        await hubConnection.InvokeAsync("AddUserToGroup", gameId);
+        await hubConnection.InvokeAsync("SetPlayers", gameId);
     }
 
     public async ValueTask DisposeAsync()
@@ -135,18 +165,20 @@
         }
     }
 
-    private void PieceClicked(int col)
+    private async Task PieceClicked(int col)
     {
-        if (gameManager.RegisterMoveToBoard(col) == -1)
+        try
+        {
+            var moveData = new MoveData(col, gameId);
+            await hubConnection.InvokeAsync("MakeMove", moveData);
+        }
+        catch (InvalidOperationException ex)
         {
             illegalMove = true;
-            return;
         }
-        if (gameManager.CheckForWinner())
+        catch
         {
-            gameEnded = true;
-            return;
+            
         }
-        gameManager.SwapPlayerTurns();
     }
 }
