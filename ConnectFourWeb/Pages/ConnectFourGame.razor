@@ -22,7 +22,7 @@
 @{
     if (gameManager != null)
     {
-        if (gameEnded)
+        if (gameManager.GameEnded)
         {
             int maxPossibleMoves = gameManager.MaxPossibleMoves;
             bool isTie = gameManager.MaxPossibleMoves == 0;
@@ -30,7 +30,7 @@
             <div>
                 @if (isTie)
                 {
-                    <p>It's a tie!</p>
+                    <h3>It's a tie!</h3>
                 }
                 else
                 {
@@ -91,7 +91,14 @@
         }
         else
         {
-            <h3>It's not your turn, please wait for your turn</h3>
+            if (playerId != gameManager.PlayerOne.PlayerId && playerId != gameManager.PlayerTwo.PlayerId)
+            {
+                <h3>You are spectating. It's @gameManager.PlayerTurn.PlayerColour's turn.</h3>
+            }
+            else
+            {
+                <h3>It's not your turn, please wait for your turn</h3>
+            }
             <div class="column">
                 @for (int i = 0; i < 6; i++)
                 {
@@ -117,7 +124,6 @@
 
     private HubConnection? hubConnection;
     private IGame gameManager;
-    private bool gameEnded = false;
     private bool illegalMove = false;
     private string? playerId;
 
@@ -132,21 +138,17 @@
 
         hubConnection.On<string>("SetPlayerOne", (socketId) =>
         {
-            gameManager.PlayerOne.PlayerId = socketId;
-            gameManager.PlayerOne.PlayerColour = TokenColour.Red;
             playerId = gameManager.PlayerOne.PlayerId;
-            gameManager.PlayerTurn = gameManager.PlayerOne;
             InvokeAsync(StateHasChanged);
         });
         hubConnection.On<string>("SetPlayerTwo", (socketId) =>
         {
-            gameManager.PlayerTwo.PlayerId = socketId;
-            gameManager.PlayerTwo.PlayerColour = TokenColour.Yellow;
             playerId = gameManager.PlayerTwo.PlayerId;
             InvokeAsync(StateHasChanged);
         });
-        hubConnection.On("GameEnded", () => {
-            gameEnded = true;
+        hubConnection.On<string>("SetObserver", (socketId) =>
+        {
+            playerId = socketId;
             InvokeAsync(StateHasChanged);
         });
         hubConnection.On("ReceiveMove", () => InvokeAsync(StateHasChanged));
@@ -167,18 +169,7 @@
 
     private async Task PieceClicked(int col)
     {
-        try
-        {
-            var moveData = new MoveData(col, gameId);
-            await hubConnection.InvokeAsync("MakeMove", moveData);
-        }
-        catch (InvalidOperationException ex)
-        {
-            illegalMove = true;
-        }
-        catch
-        {
-            
-        }
+        var moveData = new MoveData(col, gameId);
+        await hubConnection.InvokeAsync("MakeMove", moveData);
     }
 }

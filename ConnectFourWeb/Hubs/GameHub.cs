@@ -27,12 +27,24 @@ namespace ConnectFourWeb.Hubs
  
         public async Task SetPlayers(string gameId)
         {
+            IGame gameManager = GameService.GetGameManagerById(gameId);
+            if (gameManager == null)
+            {
+                return;
+            }
+
             if (connectionCount.ContainsKey(gameId))
             {
                 connectionCount[gameId] = connectionCount[gameId].Append(Context.ConnectionId).ToArray();
                 if (connectionCount[gameId].Length == 2)
                 {
+                    gameManager.PlayerTwo.PlayerId = Context.ConnectionId;
                     await Clients.Clients(Context.ConnectionId).SendAsync("SetPlayerTwo", Context.ConnectionId);
+                }
+                else
+                {
+                    gameManager.PlayerOne.PlayerId = Context.ConnectionId;
+                    await Clients.Clients(Context.ConnectionId).SendAsync("SetObserver", Context.ConnectionId);
                 }
             }
             else
@@ -46,6 +58,7 @@ namespace ConnectFourWeb.Hubs
         {
             int col = moveData.Col;
             string gameId = moveData.GameId;
+            MoveResult moveResult;
 
             IGame gameManager = GameService.GetGameManagerById(gameId);
 
@@ -54,20 +67,22 @@ namespace ConnectFourWeb.Hubs
                 return;
             }
 
-            if (gameManager.RegisterMoveToBoard(col) == -1)
+            moveResult = gameManager.CalculateMove(col);
+            switch (moveResult)
             {
-                throw new InvalidOperationException();
+                case MoveResult.Success:
+                    await Clients.Group(gameId).SendAsync("ReceiveMove");
+                    break;
+                case MoveResult.IllegalMove:
+                    await Clients.Clients(Context.ConnectionId).SendAsync("IllegalMove");
+                    return;
+                case MoveResult.Winner:
+                    break;
+                case MoveResult.Tie:
+                    break;
             }
-            if (gameManager.CheckForWinner() || gameManager.CheckForTie())
-            {
-                await Clients.Group(gameId).SendAsync("GameEnded");
-                return;
-            }
-            else
-            {
-                await Clients.Group(gameId).SendAsync("ReceiveMove");
-            }
-            gameManager.SwapPlayerTurns();
+
+            await Clients.Group(gameId).SendAsync("ReceiveMove");
         }
 
         private async void NotifyOtherClients(string key) => await Clients.All.SendAsync("UserDisconnceted", key);

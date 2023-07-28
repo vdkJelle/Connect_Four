@@ -37,6 +37,10 @@ namespace ConnectFourWeb.Hubs
                 otherUser = Context.ConnectionId;
                 return;
             }
+            if (string.Equals(otherUser, Context.ConnectionId))
+            {
+                return;
+            }
 
             string gameId = GenerateString();
             GameService.InitialiseGameData(gameId, otherUser, Context.ConnectionId);

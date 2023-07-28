@@ -8,20 +8,49 @@ using System.Threading.Tasks;
 
 namespace ConnectFourLibrary
 {
+    public enum MoveResult
+    {
+        Success,
+        IllegalMove,
+        Winner,
+        Tie,
+    }
+
     public class Game : IGame
     {
         public Game(IBoard playingBoard, IPlayer playerOne, IPlayer playerTwo)
         {
             this.Board = playingBoard;
             this.PlayerOne = playerOne;
+            this.PlayerOne.PlayerColour = TokenColour.Red;
             this.PlayerTwo = playerTwo;
+            this.PlayerTwo.PlayerColour = TokenColour.Yellow;
             this.PlayerTurn = PlayerOne;
+            this.GameEnded = false;
             this.CalculateMaxPossibleMoves();
         } 
 
         private void CalculateMaxPossibleMoves()
         {
             this.MaxPossibleMoves = this.Board.PlayingBoard.GetLength(0) * this.Board.PlayingBoard.GetLength(1);
+        }
+
+        public MoveResult CalculateMove(int move)
+        {
+            if (RegisterMoveToBoard(move) == -1)
+            {
+                return MoveResult.IllegalMove;
+            }
+            if (CheckForWinner())
+            {
+                return MoveResult.Winner;
+            }
+            else if (CheckForTie())
+            {
+                return MoveResult.Tie;
+            }
+            SwapPlayerTurns();
+            return MoveResult.Success;
         }
 
         private int FindAvailableRow(int col)
@@ -36,7 +65,7 @@ namespace ConnectFourLibrary
             throw new ArgumentOutOfRangeException("Kolom is vol, voer een kolom in die nog niet vol zit.");
         }
 
-        public int RegisterMoveToBoard(int move)
+        private int RegisterMoveToBoard(int move)
         {
             try
             {
@@ -51,7 +80,7 @@ namespace ConnectFourLibrary
             }
         }
 
-        public void SwapPlayerTurns()
+        private void SwapPlayerTurns()
         {
             if (this.PlayerTurn == PlayerOne)
             {
@@ -134,27 +163,25 @@ namespace ConnectFourLibrary
             return false;
         }
 
-        public bool CheckForWinner()
+        private bool CheckForWinner()
         {
             int rows = this.Board.PlayingBoard.GetLength(0);
             int columns = this.Board.PlayingBoard.GetLength(1);
 
-            if (CheckRows(rows, columns))
+            if (CheckRows(rows, columns) || CheckColumns(rows, columns) || CheckDiagonals(rows, columns))
+            {
+                GameEnded = true;
                 return (true);
-
-            if (CheckColumns(rows, columns))
-                return (true);
-
-            if (CheckDiagonals(rows, columns))
-                return (true);
+            }
 
             return (false);
         }
 
-        public bool CheckForTie()
+        private bool CheckForTie()
         {
             if (this.MaxPossibleMoves == 0)
             {
+                GameEnded = true;
                 return true;
             }
             else
@@ -163,6 +190,7 @@ namespace ConnectFourLibrary
             }
         }
 
+        public bool GameEnded { get; set; }
         public IPlayer PlayerTurn { get; set; }
         public int MaxPossibleMoves { get; set; }
         public IBoard Board { get; }
