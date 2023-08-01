@@ -41,7 +41,7 @@ namespace Connect_Four_v0._2
 
             for (int i = 0; i < board.PlayingBoard.GetLength(1); i++)
             {
-                if (board.PlayingBoard[row, i] == 1)
+                if (board.PlayingBoard[row, i].color == TokenColour.Yellow)
                 {
                     if (drawPosition == Line.TopOrBottom)
                     {
@@ -52,7 +52,7 @@ namespace Connect_Four_v0._2
                         drawString += Constants.PLAYER1_MIDDLE;
                     }
                 }
-                else if (board.PlayingBoard[row, i] == 2)
+                else if (board.PlayingBoard[row, i].color == TokenColour.Yellow)
                 {
                     if (drawPosition == Line.TopOrBottom)
                     {
@@ -159,7 +159,7 @@ namespace Connect_Four_v0._2
             }
         }
 
-        private static string AnnounceWinner(int playerTurn)
+        private static string AnnounceWinner(string playerTurn)
         {
             string message = $"Congratulations player {playerTurn} on winning this round!";
             return message;
@@ -176,7 +176,7 @@ namespace Connect_Four_v0._2
 
             if (hasSomeoneWon)
             {
-                Console.WriteLine(AnnounceWinner(gameManager.PlayerTurn));
+                Console.WriteLine(AnnounceWinner(gameManager.PlayerTurn.PlayerColour.ToString()));
             }
             else
             {

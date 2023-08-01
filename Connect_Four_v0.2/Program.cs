@@ -14,24 +14,27 @@ namespace App
             IGame gameManager = new Game(connectFourBoard, playerOne, playerTwo);
             int userInput;
 
-            for (; gameManager.MaxPossibleMoves > 0; gameManager.MaxPossibleMoves--)
+            for (;;)
             {
+                consoleUI.ClearConsole();
                 consoleUI.DrawBoard(gameManager.Board);
                 if ((userInput = consoleUI.UserInput()) == -1)
                 {
                     continue;
                 }
-                if (gameManager.RegisterMoveToBoard(userInput - 1) == -1)
+                switch (gameManager.CalculateMove(userInput - 1))
                 {
-                    consoleUI.HandleFullColumn();
-                    continue;
+                    case MoveResult.IllegalMove:
+                        consoleUI.HandleFullColumn();
+                        continue;
+                    case MoveResult.Winner:
+                        break;
+                    case MoveResult.Tie:
+                        break;
+                    default:
+                        continue;
                 }
-                if (gameManager.CheckForWinner())
-                {
-                    break;
-                }
-                gameManager.SwapPlayerTurns();
-                consoleUI.ClearConsole();
+                break;
             }
             consoleUI.ClearConsole();
             consoleUI.DrawBoard(gameManager.Board);

@@ -16,8 +16,12 @@ namespace ConnectFourLibrary
         public string PlayerId 
         { 
             get { return (_playerId); }
+            set { _playerId = value; }
         }
 
+        public TokenColour PlayerColour { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         private string _playerId;
+        
     }
 }
