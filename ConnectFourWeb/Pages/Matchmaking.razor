@@ -2,13 +2,20 @@
 
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
 
 <PageTitle>Matchmaking</PageTitle>
 
 <h1>Matchmaking</h1>
-
-<button class="btn btn-primary" @onclick="() => InitiateMatchmaking()" disabled="@(!IsConnected)">Search for Game!</button>
+<AuthorizeView>
+    <Authorized>
+        <button class="btn btn-primary" @onclick="() => InitiateMatchmaking()" disabled="@(!IsConnected)">Search for Game!</button>
+    </Authorized>
+    <NotAuthorized>
+        <a href="/Identity/Account/Login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private HubConnection? hubConnection;

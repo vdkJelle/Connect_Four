@@ -4,7 +4,14 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-<h3>Choose which game you would like to spectate:</h3>
+<AuthorizeView>
+    <Authorized>
+        <h3>Choose which game you would like to spectate:</h3>
+    </Authorized>
+    <NotAuthorized>
+        <a href="/Identity/Account/Login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private HubConnection? hubConnection;

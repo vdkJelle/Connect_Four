@@ -5,130 +5,143 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using System.Security.Claims;
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
 
 <PageTitle>Game Page</PageTitle>
 
 <h1>Connect Four</h1>
 
-<h2>How to Play:</h2>
-<ol>
-    <li>Player 1 will be <span style="color: red">red</span>, and Player 2 will be <span style="color: yellow;">yellow</span>.</li>
-    <li>Players will alternate taking turns by putting their tokens on the board. Put your token in the board by clicking the column where you want to place it.</li>
-    <li>The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical, or diagonal.</li>
-</ol>
-
-@{
-    if (gameManager != null)
-    {
-        if (gameManager.GameEnded)
+<AuthorizeView>
+    <Authorized>
+        <h2>How to Play:</h2>
+        <ol>
+            <li>Player 1 will be <span style="color: red">red</span>, and Player 2 will be <span style="color: yellow;">yellow</span>.</li>
+            <li>Players will alternate taking turns by putting their tokens on the board. Put your token in the board by clicking the column where you want to place it.</li>
+            <li>The first player to connect four tokens in a row wins. The four in a row can be horizontal, vertical, or diagonal.</li>
+        </ol>
+        @if (gameManager != null)
         {
-            int maxPossibleMoves = gameManager.MaxPossibleMoves;
-            bool isTie = gameManager.MaxPossibleMoves == 0;
-
-            <div>
-                @if (isTie)
-                {
-                    <h3>It's a tie!</h3>
-                }
-                else
-                {
-                    <h3>@gameManager.PlayerTurn.PlayerColour wins!</h3>
-                }
-            </div>
-
-            <div class="column">
-                 @for (int i = 0; i < 6; i++)
-                 {
-                    <div class="board">
-                        @for (int j = 0; j < 7; j++)
-                        {
-                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
-                        }
-                    </div>
-                 }
-            </div>
-        }
-        else if (illegalMove == true && gameManager.PlayerTurn.PlayerId == playerId)
-        {
-            illegalMove = false;
-            if (@gameManager.PlayerTurn.PlayerId == playerId)
+            @if (gameManager.GameEnded)
             {
-                <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+                int maxPossibleMoves = gameManager.MaxPossibleMoves;
+                bool isTie = gameManager.MaxPossibleMoves == 0;
+
+                <div>
+                    @if (isTie)
+                    {
+                        <h3>It's a tie!</h3>
+                    }
+                    else
+                    {
+                        <h3>@gameManager.PlayerTurn.PlayerColour wins!</h3>
+                    }
+                </div>
+
+                <div class="column">
+                        @for (int i = 0; i < 6; i++)
+                        {
+                        <div class="board">
+                            @for (int j = 0; j < 7; j++)
+                            {
+                                <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
+                            }
+                        </div>
+                        }
+                </div>
             }
-            <h3><span style="color: purple">Illegal move, please select a column that isn't full!</span></h3>
-            <div class="column">
-                @for (int i = 0; i < 6; i++)
-                {
-                    <div class="board">
-                        @for (int j = 0; j < 7; j++)
-                        {
-                            int columnIndex = j;
-
-                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
-                        }
-                    </div>
-                }
-            </div>
-        }
-        else if (gameManager.PlayerTurn.PlayerId == playerId)
-        {
-            <h3>Your Turn! You are playing with @gameManager.PlayerTurn.PlayerColour!</h3>
-            <div class="column">
-                @for (int i = 0; i < 6; i++)
-                {
-                    <div class="board">
-                        @for (int j = 0; j < 7; j++)
-                        {
-                            int columnIndex = j;
-
-                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
-                        }
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            if (playerId != gameManager.PlayerOne.PlayerId && playerId != gameManager.PlayerTwo.PlayerId)
+            else if (illegalMove == true && gameManager.PlayerTurn.PlayerId == playerId)
             {
-                <h3>You are spectating. It's @gameManager.PlayerTurn.PlayerColour's turn.</h3>
+                illegalMove = false;
+                if (@gameManager.PlayerTurn.PlayerId == playerId)
+                {
+                    <h3>@gameManager.PlayerTurn.PlayerColour's Turn!</h3>
+                }
+                <h3><span style="color: purple">Illegal move, please select a column that isn't full!</span></h3>
+                <div class="column">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <div class="board">
+                            @for (int j = 0; j < 7; j++)
+                            {
+                                int columnIndex = j;
+
+                                <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else if (gameManager.PlayerTurn.PlayerId == playerId)
+            {
+                <h3>Your Turn! You are playing with @gameManager.PlayerTurn.PlayerColour!</h3>
+                <div class="column">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <div class="board">
+                            @for (int j = 0; j < 7; j++)
+                            {
+                                int columnIndex = j;
+
+                                <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()" @onclick="@(() => PieceClicked(columnIndex))"></div>
+                            }
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <h3>It's not your turn, please wait for your turn</h3>
-            }
-            <div class="column">
-                @for (int i = 0; i < 6; i++)
+                @if (playerId != gameManager.PlayerOne.PlayerId && playerId != gameManager.PlayerTwo.PlayerId)
                 {
-                    <div class="board">
-                        @for (int j = 0; j < 7; j++)
-                        {
-                            <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
-                        }
-                    </div>
+                    <h3>You are spectating. It's @gameManager.PlayerTurn.PlayerColour's turn.</h3>
                 }
-            </div>
+                else
+                {
+                    <h3>It's not your turn, please wait for your turn</h3>
+                }
+                <div class="column">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <div class="board">
+                            @for (int j = 0; j < 7; j++)
+                            {
+                                <div class="gamepiece @gameManager.Board.PlayingBoard[i, j].color.ToString().ToLower()"></div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
         }
-    }
-    else
-    {
-        <p>Loading...</p>
-    }
-}
+        else
+        {
+            <p>Loading...</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <a href="/Identity/Account/Login">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter]
     public string? gameId { get; set; }
 
     private HubConnection? hubConnection;
-    private IGame gameManager;
+    private IGame? gameManager;
     private bool illegalMove = false;
     private string? playerId;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            return;
+        }
+
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("GameHub"))
             .WithAutomaticReconnect()
