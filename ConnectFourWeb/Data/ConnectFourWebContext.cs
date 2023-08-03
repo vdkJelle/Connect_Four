@@ -1,16 +1,18 @@
-﻿using ConnectFourWeb.Areas.Identity.Data;
+﻿using ConnectFourWeb.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConnectFourWeb.Data;
 
-public class ConnectFourWebContext : IdentityDbContext<ConnectFourWebUser>
+public class ConnectFourWebContext: IdentityDbContext<ConnectFourWebUser>
 {
     public ConnectFourWebContext(DbContextOptions<ConnectFourWebContext> options)
         : base(options)
     {
     }
+
+    public DbSet<Game>? Games { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
