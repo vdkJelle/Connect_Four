@@ -12,7 +12,7 @@ public class ConnectFourWebContext: IdentityDbContext<ConnectFourWebUser>
     {
     }
 
-    public DbSet<Game>? Games { get; set; }
+    public DbSet<DbGame>? Games { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -4,7 +4,7 @@ using ConnectFourLibrary;
 
 namespace ConnectFourWeb.Models
 {
-    public class Game
+    public class DbGame
     {
         [Key]
         public string Id { get; set; }
