@@ -22,7 +22,7 @@ namespace ConnectFourWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("ConnectFourWeb.Areas.Identity.Data.ConnectFourWebUser", b =>
+            modelBuilder.Entity("ConnectFourWeb.Models.ConnectFourWebUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -85,6 +85,32 @@ namespace ConnectFourWeb.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("ConnectFourWeb.Models.DbGame", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("GameSerialized")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlayerOneSerialized")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlayerTurnSerialized")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlayerTwoSerialized")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -224,6 +250,46 @@ namespace ConnectFourWeb.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ConnectFourWeb.Models.DbGame", b =>
+                {
+                    b.OwnsOne("ConnectFourLibrary.Game", "GameManager", b1 =>
+                        {
+                            b1.Property<string>("DbGameId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<bool>("GameEnded")
+                                .HasColumnType("bit");
+
+                            b1.Property<int>("MaxPossibleMoves")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("PlayerOne")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("PlayerOne");
+
+                            b1.Property<string>("PlayerTurn")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("PlayerTurn");
+
+                            b1.Property<string>("PlayerTwo")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("PlayerTwo");
+
+                            b1.HasKey("DbGameId");
+
+                            b1.ToTable("Games");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DbGameId");
+                        });
+
+                    b.Navigation("GameManager")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -235,7 +301,7 @@ namespace ConnectFourWeb.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ConnectFourWeb.Areas.Identity.Data.ConnectFourWebUser", null)
+                    b.HasOne("ConnectFourWeb.Models.ConnectFourWebUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -244,7 +310,7 @@ namespace ConnectFourWeb.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ConnectFourWeb.Areas.Identity.Data.ConnectFourWebUser", null)
+                    b.HasOne("ConnectFourWeb.Models.ConnectFourWebUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -259,7 +325,7 @@ namespace ConnectFourWeb.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ConnectFourWeb.Areas.Identity.Data.ConnectFourWebUser", null)
+                    b.HasOne("ConnectFourWeb.Models.ConnectFourWebUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -268,7 +334,7 @@ namespace ConnectFourWeb.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ConnectFourWeb.Areas.Identity.Data.ConnectFourWebUser", null)
+                    b.HasOne("ConnectFourWeb.Models.ConnectFourWebUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -1,6 +1,7 @@
 ﻿@page "/matchmaking"
 
 @using Microsoft.AspNetCore.SignalR.Client
+@using System.Security.Claims;
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
@@ -11,6 +12,18 @@
 <AuthorizeView>
     <Authorized>
         <button class="btn btn-primary" @onclick="() => InitiateMatchmaking()" disabled="@(!IsConnected)">Search for Game!</button>
+        @if (queued)
+        {
+            <div>
+                <h3>Queued for game, please wait for another player to join the queue.</h3>
+            </div>
+        }
+        @if (queue_duplicate)
+        {
+            <div>
+                <h3>You can not play against yourself.</h3>
+            </div>
+        }
     </Authorized>
     <NotAuthorized>
         <a href="/Identity/Account/Login">Login</a>
@@ -18,16 +31,35 @@
 </AuthorizeView>
 
 @code {
+    private string? accessToken;
     private HubConnection? hubConnection;
+    private bool queued = false;
+    private bool queue_duplicate = false;
 
     protected override async Task OnInitializedAsync()
     {
+        var httpContextAccessor = new HttpContextAccessor();
+        var httpContext = httpContextAccessor.HttpContext;
+
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"))
+            .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"), options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(accessToken);
+            })
             .WithAutomaticReconnect()
             .Build();
 
         hubConnection.On<string>("InitiateMatch", (url) => NavigateToGamePage(url));
+        hubConnection.On("Queued", () => 
+        {
+            queued = true;
+            InvokeAsync(StateHasChanged);
+        });
+        hubConnection.On("Queue_Duplicate", () =>
+        {
+            queue_duplicate = true;
+            InvokeAsync(StateHasChanged);
+        });
 
         await hubConnection.StartAsync();
     }

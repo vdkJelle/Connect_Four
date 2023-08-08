@@ -18,6 +18,11 @@ namespace ConnectFourLibrary
 
     public class Game : IGame
     {
+        public Game() 
+        {
+
+        }
+
         public Game(IBoard playingBoard, IPlayer playerOne, IPlayer playerTwo)
         {
             this.Board = playingBoard;

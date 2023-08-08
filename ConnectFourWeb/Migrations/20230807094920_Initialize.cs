@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ConnectFourWeb.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Initialize : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,6 +46,26 @@ namespace ConnectFourWeb.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Games",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GameSerialized = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlayerOneSerialized = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlayerTwoSerialized = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlayerTurnSerialized = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GameManager_GameEnded = table.Column<bool>(type: "bit", nullable: false),
+                    PlayerTurn = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GameManager_MaxPossibleMoves = table.Column<int>(type: "int", nullable: false),
+                    PlayerOne = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlayerTwo = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Games", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,6 +230,9 @@ namespace ConnectFourWeb.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Games");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

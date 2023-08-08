@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 using ConnectFourWeb.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConnectFourWeb.Hubs
 {
     public class MatchmakingHub: Hub
     {
         private readonly static Dictionary<string, string> connectionIds = new();
-        private static string? otherUser;
+        private static string? otherUserId;
+        private static string? otherUserConnectionId;
 
         public override async Task OnConnectedAsync()
         {
@@ -32,20 +35,25 @@ namespace ConnectFourWeb.Hubs
 
         public async Task InitiateMatchmaking()
         {
-            if (string.IsNullOrEmpty(otherUser))
+            var currentUser = Context.User;
+
+            if (string.IsNullOrEmpty(otherUserId))
             {
-                otherUser = Context.ConnectionId;
+                otherUserId = currentUser.FindFirst(ClaimTypes.Name).Value;
+                otherUserConnectionId = Context.ConnectionId;
+                await Clients.Clients(Context.ConnectionId).SendAsync("Queued");
                 return;
             }
-            if (string.Equals(otherUser, Context.ConnectionId))
+            if (string.Equals(otherUserId, currentUser.FindFirst(ClaimTypes.Name).Value))
             {
+                await Clients.Clients(Context.ConnectionId).SendAsync("Queue_Duplicate");
                 return;
             }
 
             string gameId = GenerateString();
-            GameService.InitialiseGameData(gameId, otherUser, Context.ConnectionId);
+            GameService.InitialiseGameData(gameId, otherUserId, currentUser.FindFirst(ClaimTypes.Name).Value);
             string url = $"/game/{gameId}";
-            await Clients.Clients(Context.ConnectionId, otherUser).SendAsync("InitiateMatch", url);
+            await Clients.Clients(Context.ConnectionId, otherUserConnectionId).SendAsync("InitiateMatch", url);
         }
 
         private async void NotifyOtherClients(string key) => await Clients.All.SendAsync("UserDisconnected", key);
@@ -54,9 +62,10 @@ namespace ConnectFourWeb.Hubs
         {
             KeyValuePair<string, string> user = connectionIds.FirstOrDefault(x => x.Value == Context.ConnectionId);
 
-            if (user.Value == otherUser)
+            if (user.Value == otherUserConnectionId)
             {
-                otherUser = "";
+                otherUserConnectionId = "";
+                otherUserId = "";
             }
         }
 
