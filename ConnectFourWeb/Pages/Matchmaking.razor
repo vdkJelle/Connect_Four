@@ -31,7 +31,6 @@
 </AuthorizeView>
 
 @code {
-    private string? accessToken;
     private HubConnection? hubConnection;
     private bool queued = false;
     private bool queue_duplicate = false;
@@ -44,7 +43,7 @@
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"), options =>
             {
-                options.AccessTokenProvider = () => Task.FromResult(accessToken);
+                options.AccessTokenProvider = () => Task.FromResult();
             })
             .WithAutomaticReconnect()
             .Build();

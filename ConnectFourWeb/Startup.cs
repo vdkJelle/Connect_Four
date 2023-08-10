@@ -48,9 +48,9 @@ namespace ConnectFourWeb
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<MatchmakingHub>("/MatchmakingHub");
-                endpoints.MapHub<GameHub>("/GameHub");
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<GameHub>("/GameHub");
+                endpoints.MapHub<MatchmakingHub>("/MatchmakingHub");
                 endpoints.MapFallbackToPage("/_HOST");
             });
         }
