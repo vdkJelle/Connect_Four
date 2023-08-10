@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using ConnectFourWeb.Models;
+using ConnectFourWeb.Data;
 
 namespace ConnectFourWeb.Areas.Identity.Pages.Account
 {
@@ -22,11 +23,13 @@ namespace ConnectFourWeb.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ConnectFourWebUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly JwtTokenProvider _jwtTokenProvider;
 
-        public LoginModel(SignInManager<ConnectFourWebUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ConnectFourWebUser> signInManager, ILogger<LoginModel> logger, IConfiguration configuration)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _jwtTokenProvider = new JwtTokenProvider(configuration);
         }
 
         /// <summary>
@@ -102,6 +105,8 @@ namespace ConnectFourWeb.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
+
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
@@ -116,6 +121,14 @@ namespace ConnectFourWeb.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var token = _jwtTokenProvider.GenerateJwtToken(Input.Username);
+                    Response.Cookies.Append("jwtToken", token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddDays(1)
+                    });
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

@@ -2,6 +2,7 @@
 
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Security.Claims;
+@using Microsoft.AspNetCore.Http
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @implements IAsyncDisposable
@@ -37,13 +38,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var httpContextAccessor = new HttpContextAccessor();
-        var httpContext = httpContextAccessor.HttpContext;
+        IHttpContextAccessor httpContextAccessor = new HttpContextAccessor();
+        string jwtToken = httpContextAccessor.HttpContext.Request.Cookies["jwtToken"];
 
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"), options =>
             {
-                options.AccessTokenProvider = () => Task.FromResult();
+                options.Headers.Add("Authorization", "Bearer " + jwtToken);
             })
             .WithAutomaticReconnect()
             .Build();
