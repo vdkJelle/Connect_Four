@@ -1,4 +1,6 @@
-﻿using ConnectFourWeb.Data;
+﻿//#define BEARER
+
+using ConnectFourWeb.Data;
 using ConnectFourWeb.Hubs;
 using ConnectFourWeb.Models;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace ConnectFourWeb
 {
@@ -21,6 +25,9 @@ namespace ConnectFourWeb
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddAuthentication().AddIdentityServerJwt();
+            //services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();
@@ -50,26 +57,48 @@ namespace ConnectFourWeb
                 options.Password.RequiredUniqueChars = 0;
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer("Bearer", options =>
-                {
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["AuthSettings:Issuer"],
-                        ValidAudience = Configuration["AuthSettings:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"]))
-                    };
-                });
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddJwtBearer("Bearer", options =>
+            //    {
+            //        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            //        {
+            //            ValidateIssuer = true,
+            //            ValidateAudience = true,
+            //            ValidateLifetime = true,
+            //            ValidateIssuerSigningKey = true,
+            //            ValidIssuer = Configuration["AuthSettings:Issuer"],
+            //            ValidAudience = Configuration["AuthSettings:Audience"],
+            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"]))
+            //        };
+            //    });
 
+#if BEARER
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = "Authority Url";
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
+#else
+            Console.WriteLine("HII");
+#endif
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -88,10 +117,9 @@ namespace ConnectFourWeb
             app.UseStaticFiles();
             app.UseResponseCompression();
 
-            app.UseAuthentication();
-
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

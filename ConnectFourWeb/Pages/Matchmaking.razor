@@ -45,6 +45,8 @@
             .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"), options =>
             {
                 options.Headers.Add("Authorization", "Bearer " + jwtToken);
+                options.UseDefaultCredentials = true;
+                options.AccessTokenProvider = () => Task.FromResult("Bearer " + jwtToken);
             })
             .WithAutomaticReconnect()
             .Build();

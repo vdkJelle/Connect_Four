@@ -14,6 +14,8 @@ namespace ConnectFourWeb.Hubs
 
         public override async Task OnConnectedAsync()
         {
+            var currentUser = Context.User;
+            
             string userId = Guid.NewGuid().ToString();
 
             connectionIds[userId] = Context.ConnectionId;
