@@ -121,14 +121,6 @@ namespace ConnectFourWeb.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    var token = _jwtTokenProvider.GenerateJwtToken(Input.Username);
-                    Response.Cookies.Append("jwtToken", token, new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTime.UtcNow.AddDays(1)
-                    });
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

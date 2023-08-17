@@ -39,14 +39,14 @@
     protected override async Task OnInitializedAsync()
     {
         IHttpContextAccessor httpContextAccessor = new HttpContextAccessor();
-        string jwtToken = httpContextAccessor.HttpContext.Request.Cookies["jwtToken"];
 
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("MatchmakingHub"), options =>
             {
-                options.Headers.Add("Authorization", "Bearer " + jwtToken);
-                options.UseDefaultCredentials = true;
-                options.AccessTokenProvider = () => Task.FromResult("Bearer " + jwtToken);
+                options.Cookies.Add(
+                    new Uri(NavigationManager.BaseUri),
+                    new System.Net.Cookie("ConnectFourCookie", httpContextAccessor.HttpContext.Request.Cookies.Where(s => s.Key == "ConnectFourCookie").FirstOrDefault().Value)
+                    );
             })
             .WithAutomaticReconnect()
             .Build();

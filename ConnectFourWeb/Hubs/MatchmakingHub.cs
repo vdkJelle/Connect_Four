@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ConnectFourWeb.Hubs
 {
-    [Authorize(AuthenticationSchemes = "Bearer")]
     public class MatchmakingHub: Hub
     {
         private readonly static Dictionary<string, string> connectionIds = new();

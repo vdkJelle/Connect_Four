@@ -25,9 +25,6 @@ namespace ConnectFourWeb
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddAuthentication().AddIdentityServerJwt();
-            //services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
-
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR();
@@ -46,59 +43,23 @@ namespace ConnectFourWeb
             services.AddDefaultIdentity<ConnectFourWebUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedEmail = false;
             }).AddEntityFrameworkStores<ConnectFourWebContext>();
 
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 2;
-                options.Password.RequiredUniqueChars = 0;
-            });
+            //services.Configure<IdentityOptions>(options =>
+            //{
+            //    options.Password.RequireDigit = false;
+            //    options.Password.RequireUppercase = false;
+            //    options.Password.RequireNonAlphanumeric = false;
+            //    options.Password.RequiredLength = 2;
+            //    options.Password.RequiredUniqueChars = 0;
+            //});
 
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer("Bearer", options =>
-            //    {
-            //        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            //        {
-            //            ValidateIssuer = true,
-            //            ValidateAudience = true,
-            //            ValidateLifetime = true,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidIssuer = Configuration["AuthSettings:Issuer"],
-            //            ValidAudience = Configuration["AuthSettings:Audience"],
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"]))
-            //        };
-            //    });
-
-#if BEARER
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.Authority = "Authority Url";
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-#else
-            Console.WriteLine("HII");
-#endif
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = "Cookie";
+            //    options.RequireAuthenticatedSignIn = false;
+            //}).AddCookie(options => options.Cookie.Name = "ConnectFourCookie");
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
